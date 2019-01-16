@@ -546,8 +546,7 @@ public class CalendarDelegate : PluginRegistry.RequestPermissionsResultListener 
         val accountName = cursor.getString(CALENDAR_PROJECTION_ACCOUNT_NAME_INDEX)
         val ownerName = cursor.getString(CALENDAR_PROJECTION_OWNER_ACCOUNT_INDEX)
 
-        val calendar = Calendar(displayName, calColor)
-        calendar.id = calId.toString()
+        val calendar = Calendar(calId.toString(), displayName, calColor)
         calendar.isReadOnly = isCalendarReadOnly(accessLevel)
         calendar.accountName = accountName
 
@@ -578,7 +577,7 @@ public class CalendarDelegate : PluginRegistry.RequestPermissionsResultListener 
         event.end = end
         event.allDay = allDay
         event.location = location
-        event.alarms = 
+        //event.alarms =
 
         return event
     }
