@@ -91,7 +91,7 @@ class DeviceCalendarPlugin() : MethodCallHandler {
                 val endDate = call.argument<Long>(CALENDAR_EVENTS_END_DATE_ARGUMENT)
                 val eventIds = call.argument<List<String>>(CALENDAR_EVENTS_IDS_ARGUMENT) ?: listOf<String>()
 
-                _calendarDelegate.retrieveEvents(calendarId, startDate, endDate, eventIds, result)
+                _calendarDelegate.retrieveEvents(calendarId!!, startDate, endDate, eventIds, result)
             }
             CREATE_OR_UPDATE_EVENT_METHOD -> {
                 val calendarId = call.argument<String>(CALENDAR_ID_ARGUMENT)!!
@@ -102,7 +102,7 @@ class DeviceCalendarPlugin() : MethodCallHandler {
                 val eventEnd = call.argument<Long>(EVENT_END_DATE_ARGUMENT)
                 val eventAlarms = call.argument<MutableList<Int>>(EVENT_ALARMS_ARGUMENT) ?: listOf<Int>()
 
-                val event = Event(eventTitle)
+                val event = Event(eventTitle!!)
                 event.calendarId = calendarId
                 event.eventId = eventId
                 event.description = eventDescription
@@ -110,13 +110,13 @@ class DeviceCalendarPlugin() : MethodCallHandler {
                 event.end = eventEnd ?: -1
                 event.alarms = eventAlarms.map{-it}.toMutableList()
 
-                _calendarDelegate.createOrUpdateEvent(calendarId, event, result)
+                _calendarDelegate.createOrUpdateEvent(calendarId!!, event, result)
             }
             DELETE_EVENT_METHOD -> {
                 val calendarId = call.argument<String>(CALENDAR_ID_ARGUMENT)!!
                 val eventId = call.argument<String>(EVENT_ID_ARGUMENT)!!
 
-                _calendarDelegate.deleteEvent(calendarId, eventId, result)
+                _calendarDelegate.deleteEvent(calendarId!!, eventId!!, result)
             }
             DELETE_CALENDAR_METHOD -> {
                 val calendarId = call.argument<String>(CALENDAR_ID_ARGUMENT)!!
