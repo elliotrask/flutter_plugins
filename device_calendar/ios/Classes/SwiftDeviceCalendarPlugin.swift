@@ -188,7 +188,7 @@ public class SwiftDeviceCalendarPlugin: NSObject, FlutterPlugin {
             ekCalendar!.title = title
             ekCalendar!.cgColor = UIColor(argb: color.intValue).cgColor
 
-            let source = eventStore.defaultCalendarForNewEvents.source
+            let source = eventStore.defaultCalendarForNewEvents?.source
             ekCalendar!.source = source
 
             do {
@@ -286,7 +286,7 @@ public class SwiftDeviceCalendarPlugin: NSObject, FlutterPlugin {
             }
             
         }
-        let alarms = ekEvent.alarms?.flatMap({ Int($0.relativeOffset) })
+        let alarms = ekEvent.alarms?.compactMap({ Int($0.relativeOffset) })
         let end = Int(ekEvent.endDate.timeIntervalSince1970) * 1000
         let start = Int(ekEvent.startDate.timeIntervalSince1970) * 1000
         let event = Event(eventId: ekEvent.eventIdentifier, calendarId: calendarId, title: ekEvent.title, description: ekEvent.notes, start: start, end: end, allDay: ekEvent.isAllDay, attendees: attendees, location: ekEvent.location, alarms: alarms)
@@ -328,7 +328,7 @@ public class SwiftDeviceCalendarPlugin: NSObject, FlutterPlugin {
             }
 
             if (alarms != nil) {
-                let ekAlarms = alarms!.flatMap({ EKAlarm(relativeOffset: TimeInterval(exactly: $0)!) })
+                let ekAlarms = alarms!.compactMap({ EKAlarm(relativeOffset: TimeInterval(exactly: $0)!) })
                 ekEvent!.alarms = ekAlarms
             }
             
