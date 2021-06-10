@@ -15,6 +15,6 @@ class Result<T> {
     return res;
   }
 
-  T data;
-  List<String> errorMessages = new List<String>();
+  T? data;
+  List<String> errorMessages = [];
 }

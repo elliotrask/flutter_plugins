@@ -3,15 +3,11 @@ part of device_calendar;
 /// A person attending an event
 class Attendee {
   /// The name of the attendee
-  String name;
+  late String name;
 
   Attendee(this.name);
 
   Attendee.fromJson(Map<String, dynamic> json) {
-    if (json == null) {
-      throw new ArgumentError(ErrorMessages.fromJsonMapIsNull);
-    }
-
     name = json['name'];
   }
 

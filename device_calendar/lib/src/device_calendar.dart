@@ -12,7 +12,6 @@ class DeviceCalendarPlugin {
     return _instance;
   }
 
-  @visibleForTesting
   DeviceCalendarPlugin._createInstance();
 
   /// Requests permissions to modify the calendars on the device
@@ -91,7 +90,7 @@ class DeviceCalendarPlugin {
   /// The `calendarId` paramter is the id of the calendar that plugin will try to delete
   ///
   /// Returns a [Result] indicating if the event has (true) or has not (false) been deleted from the calendar
-  Future<Result<bool>> deleteCalendar(String calendarId) async {
+  Future<Result<bool>> deleteCalendar(String? calendarId) async {
     final res = new Result<bool>();
 
     if ((calendarId?.isEmpty ?? true)) {
@@ -103,7 +102,7 @@ class DeviceCalendarPlugin {
     try {
       res.data = await channel.invokeMethod(
         'deleteCalendar',
-        <String, Object>{'calendarId': calendarId},
+        <String, dynamic>{'calendarId': calendarId},
       );
     } catch (e) {
       _parsePlatformExceptionAndUpdateResult<bool>(e, res);
@@ -129,10 +128,10 @@ class DeviceCalendarPlugin {
     try {
       res.data = await channel.invokeMethod(
         'createOrUpdateCalendar',
-        <String, Object>{
+        <String, dynamic>{
           'calendarId': calendar.id,
           'calendarTitle': calendar.name,
-          'calendarColor': calendar.color.value,
+          'calendarColor': calendar.color?.value,
           'calendarAccountName': calendar.accountName,
         },
       );
@@ -153,7 +152,7 @@ class DeviceCalendarPlugin {
   /// Returns a [Result] containing a list [Event], that fall
   /// into the specified parameters
   Future<Result<List<Event>>> retrieveEvents(
-      String calendarId, RetrieveEventsParams retrieveEventsParams) async {
+      String? calendarId, RetrieveEventsParams? retrieveEventsParams) async {
     final res = new Result<List<Event>>();
 
     if ((calendarId?.isEmpty ?? true)) {
@@ -165,10 +164,10 @@ class DeviceCalendarPlugin {
     if ((retrieveEventsParams?.eventIds?.isEmpty ?? true) &&
         ((retrieveEventsParams?.startDate == null ||
                 retrieveEventsParams?.endDate == null) ||
-            (retrieveEventsParams.startDate != null &&
-                retrieveEventsParams.endDate != null &&
-                retrieveEventsParams.startDate
-                    .isAfter(retrieveEventsParams.endDate)))) {
+            (retrieveEventsParams?.startDate != null &&
+                retrieveEventsParams?.endDate != null &&
+                retrieveEventsParams!.startDate!
+                    .isAfter(retrieveEventsParams.endDate!)))) {
       res.errorMessages.add(
           "[${ErrorCodes.invalidArguments}] ${ErrorMessages.invalidRetrieveEventsParams}");
     }
@@ -176,11 +175,11 @@ class DeviceCalendarPlugin {
     if (res.errorMessages.isEmpty) {
       try {
         var eventsJson =
-            await channel.invokeMethod('retrieveEvents', <String, Object>{
+            await channel.invokeMethod('retrieveEvents', <String, dynamic>{
           'calendarId': calendarId,
-          'startDate': retrieveEventsParams.startDate?.millisecondsSinceEpoch,
-          'endDate': retrieveEventsParams.endDate?.millisecondsSinceEpoch,
-          'eventIds': retrieveEventsParams.eventIds
+          'startDate': retrieveEventsParams?.startDate?.millisecondsSinceEpoch,
+          'endDate': retrieveEventsParams?.endDate?.millisecondsSinceEpoch,
+          'eventIds': retrieveEventsParams?.eventIds
         });
 
         res.data = json.decode(eventsJson).map<Event>((decodedEvent) {
@@ -200,7 +199,7 @@ class DeviceCalendarPlugin {
   /// The `eventId` parameter is the id of the event that plugin will try to delete
   ///
   /// Returns a [Result] indicating if the event has (true) or has not (false) been deleted from the calendar
-  Future<Result<bool>> deleteEvent(String calendarId, String eventId) async {
+  Future<Result<bool>> deleteEvent(String? calendarId, String? eventId) async {
     final res = new Result<bool>();
 
     if ((calendarId?.isEmpty ?? true) || (eventId?.isEmpty ?? true)) {
@@ -211,7 +210,7 @@ class DeviceCalendarPlugin {
 
     try {
       res.data = await channel.invokeMethod('deleteEvent',
-          <String, Object>{'calendarId': calendarId, 'eventId': eventId});
+          <String, dynamic>{'calendarId': calendarId, 'eventId': eventId});
     } catch (e) {
       _parsePlatformExceptionAndUpdateResult<bool>(e, res);
     }
@@ -226,14 +225,14 @@ class DeviceCalendarPlugin {
   /// it should create or update the event.
   ///
   /// Returns a [Result] with the newly created or updated [Event.eventId]
-  Future<Result<String>> createOrUpdateEvent(Event event) async {
+  Future<Result<String>> createOrUpdateEvent(Event? event) async {
     final res = new Result<String>();
 
     if ((event?.calendarId?.isEmpty ?? true) ||
         (event?.title?.isEmpty ?? true) ||
-        event.start == null ||
-        event.end == null ||
-        event.start.isAfter(event.end)) {
+        event?.start == null ||
+        event?.end == null ||
+        event!.start!.isAfter(event.end!)) {
       res.errorMessages.add(
           "[${ErrorCodes.invalidArguments}] ${ErrorMessages.createOrUpdateEventInvalidArgumentsMessage}");
       return res;
@@ -252,7 +251,7 @@ class DeviceCalendarPlugin {
   }
 
   void _parsePlatformExceptionAndUpdateResult<T>(
-      Exception exception, Result<T> result) {
+      Object? exception, Result<T> result) {
     if (exception == null) {
       result.errorMessages.add(
           "[${ErrorCodes.unknown}] Device calendar plugin ran into an unknown issue");

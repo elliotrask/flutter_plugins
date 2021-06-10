@@ -3,26 +3,26 @@ part of device_calendar;
 /// A calendar on the user's device
 class Calendar {
   /// The unique identifier for this calendar
-  String id;
+  late String id;
 
   /// The name of this calendar
-  String name;
+  late String? name;
 
   /// If the calendar is read-only
-  bool isReadOnly;
+  late bool isReadOnly;
 
   /// Calendar color (required for android)
-  Color color;
+  late Color? color;
 
   /// Account name (required for android)
-  String accountName;
+  late String? accountName;
 
   Calendar({
-    this.id,
-    this.name,
-    this.isReadOnly,
-    this.color,
-    this.accountName,
+    required this.id,
+    required this.name,
+    required this.isReadOnly,
+    required this.color,
+    required this.accountName,
   });
 
   Calendar.fromJson(Map<String, dynamic> json) {
@@ -38,7 +38,7 @@ class Calendar {
     data['id'] = this.id;
     data['name'] = this.name;
     data['isReadOnly'] = this.isReadOnly;
-    data['color'] = this.color.value;
+    data['color'] = this.color?.value;
     data['account'] = this.accountName;
     return data;
   }

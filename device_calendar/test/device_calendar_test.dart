@@ -55,11 +55,11 @@ void main() {
     expect(result.errorMessages, isEmpty);
     expect(result.data, isNotNull);
     expect(result.data, isNotEmpty);
-    expect(result.data[0].name, fakeCalendarName);
+    expect(result.data?[0].name, fakeCalendarName);
   });
 
   test('RetrieveEvents_CalendarId_IsRequired', () async {
-    final String calendarId = null;
+    final String? calendarId = null;
     final RetrieveEventsParams params = new RetrieveEventsParams();
 
     final result =
@@ -71,7 +71,7 @@ void main() {
   });
 
   test('DeleteEvent_CalendarId_IsRequired', () async {
-    final String calendarId = null;
+    final String? calendarId = null;
     final String eventId = "fakeEventId";
 
     final result = await deviceCalendarPlugin.deleteEvent(calendarId, eventId);
@@ -82,8 +82,8 @@ void main() {
   });
 
   test('DeleteEvent_EventId_IsRequired', () async {
-    final String calendarId = "fakeCalendarId";
-    final String eventId = null;
+    final String? calendarId = "fakeCalendarId";
+    final String? eventId = null;
 
     final result = await deviceCalendarPlugin.deleteEvent(calendarId, eventId);
     expect(result.isSuccess, false);
@@ -93,7 +93,7 @@ void main() {
   });
 
   test('DeleteEvent_PassesArguments_Correctly', () async {
-    final String calendarId = "fakeCalendarId";
+    final String? calendarId = "fakeCalendarId";
     final String eventId = "fakeEventId";
 
     await deviceCalendarPlugin.deleteEvent(calendarId, eventId);
@@ -106,7 +106,7 @@ void main() {
   });
 
   test('CreateEvent_Arguments_Invalid', () async {
-    final String fakeCalendarId = null;
+    final String? fakeCalendarId = null;
     final Event event = new Event(fakeCalendarId);
 
     final result = await deviceCalendarPlugin.createOrUpdateEvent(event);
@@ -126,7 +126,7 @@ void main() {
     final Event event = new Event(fakeCalendarId);
     event.title = "fakeEventTitle";
     event.start = new DateTime.now();
-    event.end = event.start.add(new Duration(hours: 1));
+    event.end = event.start?.add(new Duration(hours: 1));
 
     final result = await deviceCalendarPlugin.createOrUpdateEvent(event);
     expect(result.isSuccess, true);
@@ -151,7 +151,7 @@ void main() {
     event.eventId = "fakeEventId";
     event.title = "fakeEventTitle";
     event.start = new DateTime.now();
-    event.end = event.start.add(new Duration(hours: 1));
+    event.end = event.start?.add(new Duration(hours: 1));
 
     final result = await deviceCalendarPlugin.createOrUpdateEvent(event);
     expect(result.isSuccess, true);

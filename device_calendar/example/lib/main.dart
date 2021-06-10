@@ -24,11 +24,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
-  DeviceCalendarPlugin _deviceCalendarPlugin;
+  late DeviceCalendarPlugin _deviceCalendarPlugin;
 
-  List<Calendar> _calendars;
-  Calendar _selectedCalendar;
-  List<Event> _calendarEvents;
+  List<Calendar>? _calendars;
+  Calendar? _selectedCalendar;
+  List<Event>? _calendarEvents;
 
   MyHomePageState() {
     _deviceCalendarPlugin = new DeviceCalendarPlugin();
@@ -53,11 +53,12 @@ class MyHomePageState extends State<MyHomePage> {
             child: new ListView.builder(
               itemCount: _calendars?.length ?? 0,
               itemBuilder: (BuildContext context, int index) {
+                var calendars = _calendars!;
                 return new GestureDetector(
                   onTap: () async {
-                    await _retrieveCalendarEvents(_calendars[index].id);
+                    await _retrieveCalendarEvents(calendars[index].id);
                     setState(() {
-                      _selectedCalendar = _calendars[index];
+                      _selectedCalendar = calendars[index];
                     });
                   },
                   child: new Padding(
@@ -67,11 +68,11 @@ class MyHomePageState extends State<MyHomePage> {
                         new Expanded(
                           flex: 1,
                           child: new Text(
-                            _calendars[index].name,
+                            calendars[index].name ?? "No name",
                             style: new TextStyle(fontSize: 25.0),
                           ),
                         ),
-                        new Icon(_calendars[index].isReadOnly
+                        new Icon(calendars[index].isReadOnly
                             ? Icons.lock
                             : Icons.lock_open)
                       ],
@@ -89,8 +90,8 @@ class MyHomePageState extends State<MyHomePage> {
                 itemCount: _calendarEvents?.length ?? 0,
                 itemBuilder: (BuildContext context, int index) {
                   return new EventItem(
-                      _calendarEvents[index], _deviceCalendarPlugin, () async {
-                    await _retrieveCalendarEvents(_selectedCalendar.id);
+                      _calendarEvents![index], _deviceCalendarPlugin, () async {
+                    await _retrieveCalendarEvents(_selectedCalendar!.id);
                   });
                 },
               ),
@@ -102,7 +103,7 @@ class MyHomePageState extends State<MyHomePage> {
           ? new FloatingActionButton(
               onPressed: () async {
                 final now = new DateTime.now();
-                final eventToCreate = new Event(_selectedCalendar.id);
+                final eventToCreate = new Event(_selectedCalendar!.id);
                 eventToCreate.title =
                     "Event created with Device Calendar Plugin";
                 eventToCreate.start = now;
@@ -111,7 +112,7 @@ class MyHomePageState extends State<MyHomePage> {
                     .createOrUpdateEvent(eventToCreate);
                 if (createEventResult.isSuccess &&
                     (createEventResult.data?.isNotEmpty ?? false)) {
-                  _retrieveCalendarEvents(_selectedCalendar.id);
+                  _retrieveCalendarEvents(_selectedCalendar!.id);
                 }
               },
               child: new Icon(Icons.add),
@@ -123,16 +124,16 @@ class MyHomePageState extends State<MyHomePage> {
   void _retrieveCalendars() async {
     try {
       var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
-      if (permissionsGranted.isSuccess && !permissionsGranted.data) {
+      if (permissionsGranted.isSuccess && !permissionsGranted.data!) {
         permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
-        if (!permissionsGranted.isSuccess || !permissionsGranted.data) {
+        if (!permissionsGranted.isSuccess || !permissionsGranted.data!) {
           return;
         }
       }
 
       final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
       setState(() {
-        _calendars = calendarsResult?.data;
+        _calendars = calendarsResult.data;
       });
     } on PlatformException catch (e) {
       print(e);
@@ -149,7 +150,7 @@ class MyHomePageState extends State<MyHomePage> {
           calendarId, retrieveEventsParams);
 
       setState(() {
-        _calendarEvents = eventsResult?.data;
+        _calendarEvents = eventsResult.data;
       });
     } catch (e) {
       print(e);
@@ -209,7 +210,7 @@ class EventItem extends StatelessWidget {
                       ),
                       new Expanded(
                         child: new Text(
-                          _calendarEvent?.location ?? '',
+                          _calendarEvent.location ?? '',
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -229,10 +230,10 @@ class EventItem extends StatelessWidget {
                       ),
                       new Expanded(
                         child: new Text(
-                          _calendarEvent?.attendees
-                                  ?.where((a) => a.name?.isNotEmpty ?? false)
-                                  ?.map((a) => a.name)
-                                  ?.join(', ') ??
+                          _calendarEvent.attendees
+                                  ?.where((a) => a.name.isNotEmpty)
+                                  .map((a) => a.name)
+                                  .join(', ') ??
                               '',
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -243,7 +244,7 @@ class EventItem extends StatelessWidget {
               ],
             ),
           ),
-          new ButtonTheme.bar(
+          new ButtonTheme(
             child: new ButtonBar(
               children: <Widget>[
                 new IconButton(
@@ -251,7 +252,7 @@ class EventItem extends StatelessWidget {
                     final deleteResult =
                         await _deviceCalendarPlugin.deleteEvent(
                             _calendarEvent.calendarId, _calendarEvent.eventId);
-                    if (deleteResult.isSuccess && deleteResult.data) {
+                    if (deleteResult.isSuccess && deleteResult.data!) {
                       onDeleteSucceeded();
                     }
                   },
